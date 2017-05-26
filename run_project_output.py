@@ -33,11 +33,11 @@ if __name__ == "__main__":
     cal = create_calibration()
     pt = create_perspective_transform()
 
-    # video_name = "project_video.mp4"
-    video_name = "02_crop_project_video.mp4"
+    video_name = "project_video.mp4"
+    # video_name = "00_crop_project_video.mp4"
 
     pi = ProcessImage(pt, cal, smooth_window=5)
-    project_output = '170520_0.2.0-project-output_{}'.format(video_name)
+    project_output = '170520_0.3.0-project-output_{}'.format(video_name)
 
     clip = VideoFileClip("../" + video_name)
     project_clip = clip.fl_image(pi.run)

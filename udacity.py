@@ -96,32 +96,6 @@ def calculate_first_frame(binary_warped, margin=100, plot=False, ax=None):
     return left_fitx, right_fitx, ploty, left_fit, right_fit#, leftx, rightx
 
 
-def fit_polynomials(binary_warped, left_lane_inds, right_lane_inds):
-    # Assume you now have a new warped binary image
-    # from the next frame of video (also called "binary_warped")
-    # It's now much easier to find line pixels!
-    nonzero = binary_warped.nonzero()
-    nonzeroy = np.array(nonzero[0])
-    nonzerox = np.array(nonzero[1])
-
-    # Again, extract left and right line pixel positions
-    leftx = nonzerox[left_lane_inds]
-    lefty = nonzeroy[left_lane_inds]
-    rightx = nonzerox[right_lane_inds]
-    righty = nonzeroy[right_lane_inds]
-
-    # Fit a second order polynomial to each
-    left_fit = np.polyfit(lefty, leftx, 2)
-    right_fit = np.polyfit(righty, rightx, 2)
-
-    # Generate x and y values for plotting
-    ploty = np.linspace(0, binary_warped.shape[0] - 1, binary_warped.shape[0])
-    left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
-    right_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
-
-    return left_fitx, right_fitx, ploty, left_fit, right_fit
-
-
 def calculate_subsequent_frame(binary_warped, left_fit, right_fit, margin=100):
     # Assume you now have a new warped binary image
     # from the next frame of video (also called "binary_warped")
@@ -201,7 +175,7 @@ def calculate_curvature(ploty, leftx, rightx):
     return left_curverad, right_curverad
 
 
-def unwarp_draw_line(binary_warped, left_fitx, right_fitx, ploty, M, img, ax=None):
+def unwarp_draw_line(binary_warped, left_fitx, right_fitx, ploty, M, img, ax=None, curvature=None):
     # Create an image to draw the lines on
     warp_zero = np.zeros_like(binary_warped).astype(np.uint8)
     color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
@@ -218,6 +192,16 @@ def unwarp_draw_line(binary_warped, left_fitx, right_fitx, ploty, M, img, ax=Non
     newwarp = cv2.warpPerspective(color_warp, np.linalg.inv(M), (img.shape[1], img.shape[0]))
     # Combine the result with the original image
     result = cv2.addWeighted(img, 1, newwarp, 0.3, 0)
+
+    if curvature is not None:
+        x = 40
+        y = 50
+        message = "Curvature = {:06.0f}".format(curvature)
+        font_size = 0.8
+        colour = (255, 255, 255)
+        thickness = 2
+        cv2.putText(result, message, (x, y), cv2.FONT_HERSHEY_SIMPLEX, font_size, colour, thickness)
+
     if not ax:
         ax = plt
     ax.imshow(result)
@@ -228,15 +212,19 @@ def project_plot(original_img, transformed, margin, M, last_fit=None):
     import udacity
     # calculate fit
     if last_fit is not None:
-        # out_img, left_fitx, right_fitx, ploty, left_fit, right_fit, leftx, rightx = \
         out_img, left_fitx, right_fitx, ploty, left_fit, right_fit = \
             udacity.calculate_subsequent_frame(transformed, last_fit[0], last_fit[1], margin=margin)
     else:
-        # left_fitx, right_fitx, ploty, left_fit, right_fit, leftx, rightx = \
         left_fitx, right_fitx, ploty, left_fit, right_fit = \
             udacity.calculate_first_frame(transformed, margin, plot=False)
+
+    # determine curvatures
+    curvature = calculate_curvature(ploty, leftx=left_fitx, rightx=right_fitx)
+    av_curvature = (curvature[0] + curvature[1]) / 2
+
     # plot output image
-    output_img = udacity.unwarp_draw_line(transformed, left_fitx, right_fitx, ploty, M, original_img)
+    output_img = udacity.unwarp_draw_line(
+        transformed, left_fitx, right_fitx, ploty, M, original_img, curvature=av_curvature)
     fit = [left_fit, right_fit]
     return output_img, fit
 
@@ -301,7 +289,6 @@ def debug_plot(original_img, pipeline_stages, transformed, margin, M, last_fit=N
     # plot perspective transform images
     # sliding window positions
     ax = plt.subplot2grid(grid_shape, (3, 2))
-    # left_fitx, right_fitx, ploty, left_fit, right_fit, leftx, rightx = \
     left_fitx, right_fitx, ploty, left_fit, right_fit = \
         udacity.calculate_first_frame(transformed, margin, plot=True, ax=ax)
     ax.add_artist(AnchoredText("Output of fitting from scratch (not used)", loc=label_loc))
@@ -309,17 +296,14 @@ def debug_plot(original_img, pipeline_stages, transformed, margin, M, last_fit=N
 
     # calculate fit
     if last_fit is not None:
-        # out_img, left_fitx, right_fitx, ploty, left_fit, right_fit, leftx, rightx = \
         out_img, left_fitx, right_fitx, ploty, left_fit, right_fit = \
             udacity.calculate_subsequent_frame(transformed, last_fit[0], last_fit[1], margin=margin)
     else:
-        # out_img, left_fitx, right_fitx, ploty, left_fit, right_fit, leftx, rightx = \
         out_img, left_fitx, right_fitx, ploty, left_fit, right_fit = \
             udacity.calculate_subsequent_frame(transformed, left_fit, right_fit, margin=margin)
 
     # curvatures plot
     current_curvatures = calculate_curvature(ploty, leftx=left_fitx, rightx=right_fitx)
-    # current_curvatures = calculate_curvature(ploty, leftx=leftx, rightx=rightx)
     if prev_curvatures:
         prev_curvatures.append(current_curvatures)
     else:
@@ -335,6 +319,7 @@ def debug_plot(original_img, pipeline_stages, transformed, margin, M, last_fit=N
     ax.plot(xs, av, label="average curvature", color='k')
     ax.set_xlabel("Frame")
     ax.set_ylabel("Curvature")
+    ax.set_ylim([0, 2000])
     ax.legend(loc=1)
 
     ax = plt.subplot2grid(grid_shape, (4, 2))
@@ -344,7 +329,7 @@ def debug_plot(original_img, pipeline_stages, transformed, margin, M, last_fit=N
 
     # plot final image
     ax = plt.subplot2grid(grid_shape, (4, 0), rowspan=2, colspan=2)
-    udacity.unwarp_draw_line(transformed, left_fitx, right_fitx, ploty, M, original_img, ax=ax)
+    udacity.unwarp_draw_line(transformed, left_fitx, right_fitx, ploty, M, original_img, ax=ax, curvature=av[-1])
     ax.add_artist(AnchoredText("Project output stream", loc=label_loc))
     axes.append(ax)
 
