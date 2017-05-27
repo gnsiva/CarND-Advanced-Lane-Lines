@@ -16,7 +16,7 @@
 
 The code for calibrating the camera and undistorting images are shown in `lane_lines.Chessboard` and `lane_lines.Calibration`. An example which runs the code is shown in `test_lane_lines.CalibrationTest.test_calibrate_camera_from_filename()`.
 
-The calibration method works by analysing images of chessboards taken from different angles and distances (these were provided and are in `camera_cal`). The OpenCV function `findChessboardCorners` then detects the edges between the chess board squares. The sets of these detected corners in multiple images are then fed into the OpenCV `calibrateCamera` function which, using the fact that in reality the corners are equally spaced, calculates and returns the calibration and distortion coefficients.
+The calibration method works by analysing images of chessboards taken from different angles and distances (these were provided and are in `camera_cal`). The OpenCV function `findChessboardCorners` then detects the edges between the chessboard squares. The sets of these detected corners in multiple images are then fed into the OpenCV `calibrateCamera` function which, using the fact that in reality the corners are equally spaced, calculates and returns the calibration and distortion coefficients.
 
 ![img](./writeup_images/calibration_undistorted.png)
 
@@ -67,10 +67,10 @@ This is on the "Project output stream" panel of the debug video still above.
 
 **1. Provide a link to your final video output. Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!)**
 
-The main project video is [hosted on YouTube](https://youtu.be/ppaN8IdK0a0) as well as included in the repository (advanced<sub>lane</sub><sub>line</sub><sub>finding</sub>.mp4). A second debug video is also included which shows the results of the various stages of transformation that lead up to final image simulataneously ([YouTube](https://youtu.be/v5uqnKxBYmY) link, was too large for GitHub to accept).
+The main project video is [hosted on YouTube](https://youtu.be/ppaN8IdK0a0) as well as included in the repository (advanced<sub>lane</sub><sub>line</sub><sub>finding</sub>.mp4). A second debug video is also included which shows the results of the various stages of transformation that lead up to final image simultaneously ([YouTube](https://youtu.be/v5uqnKxBYmY) link, was too large for GitHub to accept).
 
 # Discussion<a id="sec-4" name="sec-4"></a>
 
 -   I experimented with smoothing the polyfits over several previous frames, but in the end it seemed to reduce performance and so was scrapped.
 -   Currently the program is quite sensitive to shadows. The issue here is that the S channel picks them up heavily. To fix this I would experiment combining this with an `and` to another colour space, perhaps YUV.
--   I initially used an offcenter set of destination points for the perspective transform, this method actually performed better than the implementation I am submitting, but I couldn't calculate the position of the vehicle from that perspective transform as it was non-linearly distorted.
+-   I initially used an off-center set of destination points for the perspective transform, this method actually performed better than the implementation I am submitting, but I couldn't calculate the position of the vehicle from that perspective transform as it was non-linearly distorted.
