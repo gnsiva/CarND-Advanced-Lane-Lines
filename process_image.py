@@ -134,6 +134,23 @@ class ProcessImage:
         return figimg
 
 
+def create_perspective_transform():
+    # Do transformation
+    # src_coords = np.float32([(686.7, 445.6), [1100, 720], [207, 720], (601.0, 445.6)])
+    src_coords = np.float32([[740.0, 460.0], [1220, 720], [60, 720], [540.0, 460.0]])
+
+    l_offset = 0
+    r_offset = 0
+    v_offset = 0
+
+    img = mpimg.imread("test_images/straight_lines2.jpg")
+    dst_coords = lane_line_finding.PerspectiveTransform \
+        .determine_dst_coords(img, l_offset, r_offset, v_offset)
+
+    pt = lane_line_finding.PerspectiveTransform(src_coords, dst_coords)
+    return pt
+
+
 if __name__ == "__main__":
     from moviepy.editor import VideoFileClip
     import pickle
@@ -141,11 +158,13 @@ if __name__ == "__main__":
     with open("../170520_pt_cal2.p", "rb") as ifile:
         pt, cal = pickle.load(ifile)
 
+    pt = create_perspective_transform()
+
     video_name = "project_video.mp4"
     # video_name = "02_crop_project_video.mp4"
 
     pi = ProcessImage(pt, cal, smooth_window=5)
-    project_output = '170520_0.3.4-no-smoothing_{}'.format(video_name)
+    project_output = '170520_0.4.0-no-smoothing_{}'.format(video_name)
     clip = VideoFileClip("../" + video_name)
     project_clip = clip.fl_image(pi.run_debug)
     project_clip.write_videofile(project_output, audio=False)

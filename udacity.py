@@ -156,7 +156,7 @@ def plot_subsequent_frame(out_img, left_fitx, right_fitx, ploty, margin=100, ax=
     ax.set_ylim(720, 0)
 
 
-def calculate_curvature(ploty, leftx, rightx):
+def calculate_curvature_and_position(ploty, leftx, rightx, transformed):
     # Define conversions in x and y from pixels space to meters
     ym_per_pix = 30 / 720  # meters per pixel in y dimension
     xm_per_pix = 3.7 / 700  # meters per pixel in x dimension
@@ -165,17 +165,29 @@ def calculate_curvature(ploty, leftx, rightx):
     # Fit new polynomials to x,y in world space
     left_fit_cr = np.polyfit(ploty * ym_per_pix, leftx * xm_per_pix, 2)
     right_fit_cr = np.polyfit(ploty * ym_per_pix, rightx * xm_per_pix, 2)
+
     # Calculate the new radii of curvature
+    # Now our radius of curvature is in meters
     left_curverad = ((1 + (2 * left_fit_cr[0] * y_eval * ym_per_pix + left_fit_cr[1]) ** 2) ** 1.5) / np.absolute(
         2 * left_fit_cr[0])
     right_curverad = ((1 + (2 * right_fit_cr[0] * y_eval * ym_per_pix + right_fit_cr[1]) ** 2) ** 1.5) / np.absolute(
         2 * right_fit_cr[0])
 
-    # Now our radius of curvature is in meters
-    return left_curverad, right_curverad
+    # calculate vehicle position
+    # find average x and y position of the transformed lanes (in meters)
+    left_position_av = (leftx * xm_per_pix).mean()
+    right_position_av = (rightx * xm_per_pix).mean()
+
+    # find the midpoint of the two lanes and the center of the image
+    lanes_midpoint = left_position_av + ((right_position_av - left_position_av) / 2)
+    image_midpoint = transformed.shape[1] / 2 * xm_per_pix
+    # the difference is the vehicle position
+    position = lanes_midpoint - image_midpoint
+
+    return (left_curverad, right_curverad), position
 
 
-def unwarp_draw_line(binary_warped, left_fitx, right_fitx, ploty, M, img, ax=None, curvature=None):
+def unwarp_draw_line(binary_warped, left_fitx, right_fitx, ploty, M, img, ax=None, curvature=None, position=None):
     # Create an image to draw the lines on
     warp_zero = np.zeros_like(binary_warped).astype(np.uint8)
     color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
@@ -193,13 +205,18 @@ def unwarp_draw_line(binary_warped, left_fitx, right_fitx, ploty, M, img, ax=Non
     # Combine the result with the original image
     result = cv2.addWeighted(img, 1, newwarp, 0.3, 0)
 
+    x = 30
+    y = 0
+    font_size = 0.8
+    colour = (255, 255, 255)
+    thickness = 2
     if curvature is not None:
-        x = 40
-        y = 50
-        message = "Curvature = {:06.0f}".format(curvature)
-        font_size = 0.8
-        colour = (255, 255, 255)
-        thickness = 2
+        y += 40
+        message = "Radius of curvature = {:06.0f} m".format(curvature)
+        cv2.putText(result, message, (x, y), cv2.FONT_HERSHEY_SIMPLEX, font_size, colour, thickness)
+    if position is not None:
+        y += 40
+        message = "Vehicle position = {:0.3f} m".format(position)
         cv2.putText(result, message, (x, y), cv2.FONT_HERSHEY_SIMPLEX, font_size, colour, thickness)
 
     if not ax:
@@ -219,12 +236,13 @@ def project_plot(original_img, transformed, margin, M, last_fit=None):
             udacity.calculate_first_frame(transformed, margin, plot=False)
 
     # determine curvatures
-    curvature = calculate_curvature(ploty, leftx=left_fitx, rightx=right_fitx)
+    curvature, position = calculate_curvature_and_position(
+        ploty, leftx=left_fitx, rightx=right_fitx, transformed=transformed)
     av_curvature = (curvature[0] + curvature[1]) / 2
 
     # plot output image
     output_img = udacity.unwarp_draw_line(
-        transformed, left_fitx, right_fitx, ploty, M, original_img, curvature=av_curvature)
+        transformed, left_fitx, right_fitx, ploty, M, original_img, curvature=av_curvature, position=position)
     fit = [left_fit, right_fit]
     return output_img, fit
 
@@ -303,7 +321,8 @@ def debug_plot(original_img, pipeline_stages, transformed, margin, M, last_fit=N
             udacity.calculate_subsequent_frame(transformed, left_fit, right_fit, margin=margin)
 
     # curvatures plot
-    current_curvatures = calculate_curvature(ploty, leftx=left_fitx, rightx=right_fitx)
+    current_curvatures, position = calculate_curvature_and_position(
+        ploty, leftx=left_fitx, rightx=right_fitx, transformed=transformed)
     if prev_curvatures:
         prev_curvatures.append(current_curvatures)
     else:
@@ -329,7 +348,8 @@ def debug_plot(original_img, pipeline_stages, transformed, margin, M, last_fit=N
 
     # plot final image
     ax = plt.subplot2grid(grid_shape, (4, 0), rowspan=2, colspan=2)
-    udacity.unwarp_draw_line(transformed, left_fitx, right_fitx, ploty, M, original_img, ax=ax, curvature=av[-1])
+    udacity.unwarp_draw_line(
+        transformed, left_fitx, right_fitx, ploty, M, original_img, ax=ax, curvature=av[-1], position=position)
     ax.add_artist(AnchoredText("Project output stream", loc=label_loc))
     axes.append(ax)
 

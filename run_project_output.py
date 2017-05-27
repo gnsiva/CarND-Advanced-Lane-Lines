@@ -13,12 +13,28 @@ def create_calibration():
     return cal
 
 
+# def create_perspective_transform():
+#     # Do transformation
+#     src_coords = np.float32([(686.7, 445.6), [1100, 720], [207, 720], (601.0, 445.6)])
+#
+#     l_offset = 150
+#     r_offset = 300
+#     v_offset = 0
+#
+#     img = mpimg.imread("test_images/straight_lines2.jpg")
+#     dst_coords = lane_line_finding.PerspectiveTransform \
+#         .determine_dst_coords(img, l_offset, r_offset, v_offset)
+#
+#     pt = lane_line_finding.PerspectiveTransform(src_coords, dst_coords)
+#     return pt
+
 def create_perspective_transform():
     # Do transformation
-    src_coords = np.float32([(686.7, 445.6), [1100, 720], [207, 720], (601.0, 445.6)])
+    # src_coords = np.float32([(686.7, 445.6), [1100, 720], [207, 720], (601.0, 445.6)])
+    src_coords = np.float32([[740.0, 460.0], [1220, 720], [60, 720], [540.0, 460.0]])
 
-    l_offset = 150
-    r_offset = 300
+    l_offset = 0
+    r_offset = 0
     v_offset = 0
 
     img = mpimg.imread("test_images/straight_lines2.jpg")
@@ -28,7 +44,6 @@ def create_perspective_transform():
     pt = lane_line_finding.PerspectiveTransform(src_coords, dst_coords)
     return pt
 
-
 if __name__ == "__main__":
     cal = create_calibration()
     pt = create_perspective_transform()
@@ -37,7 +52,7 @@ if __name__ == "__main__":
     # video_name = "00_crop_project_video.mp4"
 
     pi = ProcessImage(pt, cal, smooth_window=5)
-    project_output = '170520_0.3.0-project-output_{}'.format(video_name)
+    project_output = '170520_0.4.1-project-output_{}'.format(video_name)
 
     clip = VideoFileClip("../" + video_name)
     project_clip = clip.fl_image(pi.run)
