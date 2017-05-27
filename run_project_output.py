@@ -11,7 +11,7 @@ if __name__ == "__main__":
     # video_name = "00_crop_project_video.mp4"
 
     pi = ProcessImage(pt, cal, smooth_window=5)
-    project_output = '170520_0.5.0-project-output_{}'.format(video_name)
+    project_output = '170527_0.5.1-project-output_{}'.format(video_name)
 
     clip = VideoFileClip("../" + video_name)
     project_clip = clip.fl_image(pi.run)

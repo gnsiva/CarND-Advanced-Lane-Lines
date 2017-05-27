@@ -182,7 +182,7 @@ def calculate_curvature_and_position(ploty, leftx, rightx, transformed):
     lanes_midpoint = left_position_av + ((right_position_av - left_position_av) / 2)
     image_midpoint = transformed.shape[1] / 2 * xm_per_pix
     # the difference is the vehicle position
-    position = lanes_midpoint - image_midpoint
+    position = image_midpoint - lanes_midpoint
 
     return (left_curverad, right_curverad), position
 
@@ -216,7 +216,7 @@ def unwarp_draw_line(binary_warped, left_fitx, right_fitx, ploty, M, img, ax=Non
         cv2.putText(result, message, (x, y), cv2.FONT_HERSHEY_SIMPLEX, font_size, colour, thickness)
     if position is not None:
         y += 40
-        message = "Vehicle position = {:0.3f} m".format(position)
+        message = "Vehicle position = {:+0.3f} m".format(position)
         cv2.putText(result, message, (x, y), cv2.FONT_HERSHEY_SIMPLEX, font_size, colour, thickness)
 
     if not ax:

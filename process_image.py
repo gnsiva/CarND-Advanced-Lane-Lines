@@ -148,7 +148,7 @@ if __name__ == "__main__":
     # video_name = "02_crop_project_video.mp4"
 
     pi = ProcessImage(pt, cal, smooth_window=5)
-    project_output = '170527_0.5.0-no-smoothing_{}'.format(video_name)
+    project_output = '170527_0.5.1-no-smoothing_{}'.format(video_name)
     clip = VideoFileClip("../" + video_name)
     project_clip = clip.fl_image(pi.run_debug)
     project_clip.write_videofile(project_output, audio=False)
