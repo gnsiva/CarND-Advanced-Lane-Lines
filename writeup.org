@@ -8,9 +8,30 @@ The calibration method works by analysing images of chessboards taken from diffe
 
 [[./writeup_images/calibration_undistorted.png]]
 
-
 * Pipeline test images
+
+*1. Provide an example of a distortion-corrected image*
+
+Below is an image taken using the dashcam, before and after undistorting.
+
+[[./writeup_images/dashcam_undistorted.png]]
+
+*2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image. Provide an example of a binary image result.*
+
+*3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.*
+
+*4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?*
+
+*5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.*
+
+*6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.*
+
 * Pipeline video
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ppaN8IdK0a0" frameborder="0" allowfullscreen></iframe>
+
+https://www.youtube.com/embed/ppaN8IdK0a0"
+
 * Discussion
 
 
+# Debug video for the advanced lane line detection project from the udacity self driving car engineer nano degree.
