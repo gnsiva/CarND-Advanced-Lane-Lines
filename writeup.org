@@ -18,20 +18,42 @@ Below is an image taken using the dashcam, before and after undistorting.
 
 *2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image. Provide an example of a binary image result.*
 
+[[../debug_video_stills/0730.jpg]]
+
+I used several different values for thresholds and kernel sizes for the different sobel transformations, with the best combination being shown in the debug plot. The is code is in =lane_line_finding.Sobel=.
+
+I also investigated the HLS colour space. The S (saturation) channel was very effective at identifying the yellow lane lines as can be seen in the debug video still. The code for converting to HLS, extracting S channel and applying a threshold is in =lane_line_finding.hls_select=.
+
+The sobel outputs and the S colour space were combined with an and, so that if either method identified a pixel as possibly being part of a lane line, they were included in the output.
+
 *3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.*
+
+The code for calculating and applying the perspective transform warp is in =lane_line_finding.PerspectiveTransform=. 
+
+[[./writeup_images/perspective_transform.png]]
 
 *4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?*
 
+The functions used to calculate the second order polynomial fit for the left and right lanes are =udacity.calculate_first_frame= and =udacity.calculate_subsequent_frame=. 
+
+The first of these functions is used for the first frame and does this by creating a histogram of the bottom half of the perspective transform. It then uses the 2 maxima as the starting point of the left and right lanes. It then moves a sliding window in steps up the image to follow the lane line, it finally calculates the second order polynomial using the NumPy function =polyfit=. The output of this step is calculated for each debug frame (panel "Output of fitting from scratch (not used)"), though after the first frame the next method is used.
+
+The subsequent frames are processed using =udacity.calculate_subsequent_frame= and the output is shown on the "Fitting based on previous fit" panel. This uses the previous fit as a starting point and so is much faster to compute.
+
+
 *5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.*
+
+The radius of curvature and position of the vehicle were calculated by the =udacity.calculate_curvature_and_position= function. The polynomial fits previously detected were converted into meters. 
+
+$R_{curve} = \frac{(1+(2Ay + B)^2)^{3/2}}{\abs{2A}}$
 
 *6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.*
 
 * Pipeline video
-<iframe width="560" height="315" src="https://www.youtube.com/embed/ppaN8IdK0a0" frameborder="0" allowfullscreen></iframe>
 
-https://www.youtube.com/embed/ppaN8IdK0a0
 
-=[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/ppaN8IdK0a0/0.jpg)](http://www.youtube.com/watch?v=ppaN8IdK0a0)=
+# Project video
+# =[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/ppaN8IdK0a0/0.jpg)](http://www.youtube.com/watch?v=ppaN8IdK0a0)=
 
 * Discussion
 
