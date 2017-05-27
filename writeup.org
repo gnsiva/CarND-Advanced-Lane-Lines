@@ -29,7 +29,9 @@ Below is an image taken using the dashcam, before and after undistorting.
 * Pipeline video
 <iframe width="560" height="315" src="https://www.youtube.com/embed/ppaN8IdK0a0" frameborder="0" allowfullscreen></iframe>
 
-https://www.youtube.com/embed/ppaN8IdK0a0"
+https://www.youtube.com/embed/ppaN8IdK0a0
+
+=[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/ppaN8IdK0a0/0.jpg)](http://www.youtube.com/watch?v=ppaN8IdK0a0)=
 
 * Discussion
 

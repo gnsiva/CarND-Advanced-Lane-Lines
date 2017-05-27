@@ -44,4 +44,6 @@ Below is an image taken using the dashcam, before and after undistorting.
 
 <https://www.youtube.com/embed/ppaN8IdK0a0>
 
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/ppaN8IdK0a0/0.jpg)](http://www.youtube.com/watch?v=ppaN8IdK0a0)
+
 # Discussion<a id="sec-4" name="sec-4"></a>
