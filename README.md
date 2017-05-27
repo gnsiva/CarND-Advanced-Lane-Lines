@@ -30,7 +30,7 @@ Below is an image taken using the dashcam, before and after undistorting.
 
 **2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image. Provide an example of a binary image result.**
 
-![img](../debug_video_stills/0730.jpg)
+![img](./writeup_images/debug_still.jpg)
 
 I used several different values for thresholds and kernel sizes for the different sobel transformations, with the best combination being shown in the debug plot. The is code is in `lane_line_finding.Sobel`.
 
@@ -54,13 +54,23 @@ The subsequent frames are processed using `udacity.calculate_subsequent_frame` a
 
 **5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.**
 
-The radius of curvature and position of the vehicle were calculated by the `udacity.calculate_curvature_and_position` function. The polynomial fits previously detected were converted into meters. 
+The radius of curvature and position of the vehicle were calculated by the `udacity.calculate_curvature_and_position` function. The polynomial fits previously detected were converted into meters and the radius of curvature was calculated using the fitting coefficients.
 
-\(R_{curve} = \frac{(1+(2Ay + B)^2)^{3/2}}{\abs{2A}}\)
-$R_{curve} = \frac{(1+(2Ay + B)^2)^{3/2}}{\abs{2A}}$
+
+The position of the vehicle was determined by first calculating the mean x position of the left and right lane from the polyfits. The mid point point between the lines was then calculated, and the position of the vehicle is the difference between this midpoint and the central point of the image in meters. This is displayed on the "Project output stream" panel. The negative value means that the car is on the left side of the lane.
 
 **6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.**
 
+This is on the "Project output stream" panel of the debug video still above.
+
 # Pipeline video<a id="sec-3" name="sec-3"></a>
 
+**1. Provide a link to your final video output. Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!)**
+
+The main project video is [hosted on YouTube](http://www.youtube.com/watch?v%3DppaN8IdK0a0) as well as included in the repository (advanced<sub>lane</sub><sub>line</sub><sub>finding</sub>.mp4). A second debug video is also included which shows the results of the various stages of transformation that lead up to final image simulataneously ([YouTube](https://www.youtube.com/watch?v%3Dv5uqnKxBYmY) link, was too large for GitHub to accept).
+
 # Discussion<a id="sec-4" name="sec-4"></a>
+
+-   I experimented with smoothing the polyfits over several previous frames, but in the end it seemed to reduce performance and so was scrapped.
+-   Currently the program is quite sensitive to shadows. The issue here is that the S channel picks them up heavily. To fix this I would experiment combining this with an `and` to another colour space, perhaps YUV.
+-   I initially used an offcenter set of destination points for the perspective transform, this method actually performed better than the implementation I am submitting, but I couldn't calculate the position of the vehicle from that perspective transform as it was non-linearly distorted.
