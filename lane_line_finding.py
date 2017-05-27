@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import skimage.io
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor as Executor
+import glob
 
 
 class Chessboard:
@@ -104,6 +105,13 @@ class Calibration:
 
         return self.undistort_image(imread(img_fn))
 
+    @staticmethod
+    def create_calibration(nx=9, ny=6, cal_img_glob="camera_cal/calibration??.jpg"):
+        cal_fns = glob.glob(cal_img_glob)
+        cal = Calibration(nx=nx, ny=ny)
+        cal.calibrate_camera_from_filenames(cal_fns)
+        return cal
+
 
 class PerspectiveTransform:
     def __init__(self, src_coords, dst_coords):
@@ -158,7 +166,6 @@ class PerspectiveTransform:
         )
         return dst_coords
         
-        
     @staticmethod
     def _check_fix_coords(coords):
         if not isinstance(coords, np.ndarray):
@@ -166,6 +173,20 @@ class PerspectiveTransform:
         elif not isinstance(coords.item(0), np.float32):
             coords = coords.astype(np.float32)
         return coords
+
+    @staticmethod
+    def create_perspective_transform(l_offset, r_offset, v_offset, src_coords='default'):
+        # Do transformation
+        # src_coords = np.float32([(686.7, 445.6), [1100, 720], [207, 720], (601.0, 445.6)])
+        if isinstance(src_coords, str):
+            src_coords = np.float32([[740.0, 460.0], [1220, 720], [60, 720], [540.0, 460.0]])
+
+        img = mpimg.imread("test_images/straight_lines2.jpg")
+        dst_coords = PerspectiveTransform \
+            .determine_dst_coords(img, l_offset, r_offset, v_offset)
+
+        pt = PerspectiveTransform(src_coords, dst_coords)
+        return pt
 
 
 class Sobel:
