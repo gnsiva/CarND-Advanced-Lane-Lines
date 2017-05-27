@@ -67,7 +67,7 @@ This is on the "Project output stream" panel of the debug video still above.
 
 **1. Provide a link to your final video output. Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!)**
 
-The main project video is [hosted on YouTube](http://www.youtube.com/watch?v%3DppaN8IdK0a0) as well as included in the repository (advanced<sub>lane</sub><sub>line</sub><sub>finding</sub>.mp4). A second debug video is also included which shows the results of the various stages of transformation that lead up to final image simulataneously ([YouTube](https://www.youtube.com/watch?v%3Dv5uqnKxBYmY) link, was too large for GitHub to accept).
+The main project video is [hosted on YouTube](https://youtu.be/ppaN8IdK0a0) as well as included in the repository (advanced<sub>lane</sub><sub>line</sub><sub>finding</sub>.mp4). A second debug video is also included which shows the results of the various stages of transformation that lead up to final image simulataneously ([YouTube](https://youtu.be/v5uqnKxBYmY) link, was too large for GitHub to accept).
 
 # Discussion<a id="sec-4" name="sec-4"></a>
 
